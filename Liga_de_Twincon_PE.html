@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Liga de Twincon - Educación Física</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2pdf.js para exportación directa a PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Google Fonts: Montserrat & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            twincon: {
+              orange: '#f97316',
+              darkOrange: '#ea580c',
+              blue: '#0284c7',
+              darkBlue: '#0369a1',
+              yellow: '#eab308',
+              navy: '#0f172a',
+              card: '#1e293b'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Montserrat', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilos personalizados y utilidades de toque */
+    body {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    /* Animaciones suaves */
+    .btn-bounce:active {
+      transform: scale(0.95);
+    }
+    
+    .badge-glow {
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+    }
+
+    .badge-glow-blue {
+      box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
+    }
+
+    /* Reglas para la vista de Impresión A4 */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      .print-container {
+        width: 100% !important;
+        max-width: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .print-break-inside-avoid {
+        break-inside: avoid;
+      }
+    }
+
+    .print-only {
+      display: none;
+    }
+
+    /* Custom scrollbar para las pestañas de clase en iPad */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col justify-between">
+
+  <!-- ================= HEADER PRINCIPAL ================= -->
+  <header class="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 border-b border-slate-800 sticky top-0 z-40 no-print shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-3">
+      
+      <!-- LOGO DE LA LIGA Y TÍTULO -->
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-twincon-orange to-twincon-yellow p-0.5 shadow-lg shadow-orange-500/20 flex-shrink-0">
+          <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center">
+            <!-- Icono SVG de Conos Cruzados de Twincon -->
+            <svg class="w-8 h-8 text-twincon-orange" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 52L28 12H36L46 52H18Z" fill="#F97316" stroke="#FFFFFF" stroke-width="2"/>
+              <path d="M22 36H42" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="32" cy="24" r="5" fill="#0284C7" stroke="#FFFFFF" stroke-width="1.5"/>
+              <path d="M10 52H54" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <h1 class="font-display font-black text-xl sm:text-2xl tracking-wide bg-gradient-to-r from-orange-400 via-amber-300 to-sky-400 bg-clip-text text-transparent">
+            LIGA TWINCON EF
+          </h1>
+          <p class="text-xs text-slate-400 font-medium">Educación Física • Primaria (4º, 5º y 6º)</p>
+        </div>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN RÁPIDA -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="loadDemoData()" class="btn-bounce bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Cargar Demo</span>
+        </button>
+
+        <button onclick="exportJSON()" class="btn-bounce bg-slate-800 hover:bg-slate-700 text-sky-400 border border-sky-500/30 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>Exportar JSON</span>
+        </button>
+
+        <label class="btn-bounce bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          <span>Importar</span>
+          <input type="file" id="importFile" accept=".json" onchange="importJSON(event)" class="hidden">
+        </label>
+
+        <button onclick="openPrintModal()" class="btn-bounce bg-gradient-to-r from-twincon-orange to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow-lg shadow-orange-500/20 flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          <span>Imprimir / PDF A4</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- NAVEGACIÓN DE SUBGRUPOS (CLASES 4.º A a 6.º C) -->
+    <div class="bg-slate-900/90 border-t border-slate-800/80 px-4 py-2">
+      <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar py-1" id="classTabsContainer">
+        <!-- Generado dinámicamente -->
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CONTENIDO PRINCIPAL ================= -->
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 py-6 w-full flex-grow no-print">
+
+    <!-- STATS RESUMEN SUPERIOR -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center font-bold text-lg">🛡️</div>
+        <div>
+          <p class="text-xs text-slate-400 font-medium">Equipos Inscritos</p>
+          <p class="font-display font-bold text-xl text-slate-100" id="statTotalTeams">0</p>
+        </div>
+      </div>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-lg">⚔️</div>
+        <div>
+          <p class="text-xs text-slate-400 font-medium">Partidos Jugados</p>
+          <p class="font-display font-bold text-xl text-slate-100" id="statMatchesPlayed">0 / 0</p>
+        </div>
+      </div>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-lg">🔶</div>
+        <div>
+          <p class="text-xs text-slate-400 font-medium">Conos Anotados</p>
+          <p class="font-display font-bold text-xl text-slate-100" id="statTotalCones">0</p>
+        </div>
+      </div>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3.5 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-lg">🥇</div>
+        <div class="overflow-hidden">
+          <p class="text-xs text-slate-400 font-medium">Líder Actual</p>
+          <p class="font-display font-bold text-base text-emerald-400 truncate" id="statLeaderName">-</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑAS DE VISTA INTERNA (CLASIFICACIÓN, PARTIDOS, GESTIÓN EQUIPOS) -->
+    <div class="flex items-center justify-between border-b border-slate-800 mb-6 pb-2">
+      <div class="flex items-center gap-2">
+        <button onclick="switchView('standings')" id="viewBtn-standings" class="view-tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition bg-gradient-to-r from-twincon-orange to-amber-500 text-white shadow-md">
+          <span>🏆 Clasificación</span>
+        </button>
+        <button onclick="switchView('matches')" id="viewBtn-matches" class="view-tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:bg-slate-800">
+          <span>⚔️ Partidos y Marcadores</span>
+        </button>
+        <button onclick="switchView('teams')" id="viewBtn-teams" class="view-tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:bg-slate-800">
+          <span>🛡️ Gestión de Equipos</span>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-400 hidden lg:block">
+        Regla de Puntos: <span class="text-emerald-400 font-bold">Victoria = 3</span> | <span class="text-amber-400 font-bold">Empate = 2</span> | <span class="text-rose-400 font-bold">Derrota = 1</span>
+      </div>
+    </div>
+
+    <!-- ================= VISTA 1: CLASIFICACIÓN ================= -->
+    <section id="view-standings" class="space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl overflow-hidden">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <h2 class="font-display font-extrabold text-xl sm:text-2xl text-white flex items-center gap-2">
+              <span class="text-amber-400">🏆</span> Tabla de Clasificación Semanal
+            </h2>
+            <p class="text-xs text-slate-400">Los escudos se muestran en gran formato para potenciar la identidad del equipo.</p>
+          </div>
+          <span class="self-start sm:self-auto bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold" id="activeClassNameLabel">
+            Clase Activa: 4.º A
+          </span>
+        </div>
+
+        <!-- TABLA DE CLASIFICACIÓN CON ESCUDOS GIGANTES -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider bg-slate-950/60">
+                <th class="py-3 px-3 text-center w-12">Pos</th>
+                <th class="py-3 px-4 min-w-[240px]">Equipo & Escudo Oficial</th>
+                <th class="py-3 px-2 text-center" title="Partidos Jugados">PJ</th>
+                <th class="py-3 px-2 text-center text-emerald-400" title="Partidos Ganados">PG</th>
+                <th class="py-3 px-2 text-center text-amber-400" title="Partidos Empatados">PE</th>
+                <th class="py-3 px-2 text-center text-rose-400" title="Partidos Perdidos">PP</th>
+                <th class="py-3 px-2 text-center text-sky-400" title="Conos a Favor">CF</th>
+                <th class="py-3 px-2 text-center text-orange-400" title="Conos en Contra">CC</th>
+                <th class="py-3 px-2 text-center" title="Diferencia de Conos">DG</th>
+                <th class="py-3 px-4 text-center font-bold text-amber-400 text-sm">PTS</th>
+              </tr>
+            </thead>
+            <tbody id="standingsTableBody" class="divide-y divide-slate-800/60">
+              <!-- Renderizado mediante JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- MENSAJE SI NO HAY EQUIPOS -->
+        <div id="noTeamsWarning" class="hidden text-center py-12 px-4">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-3xl">🛡️</div>
+          <h3 class="font-display font-bold text-lg text-slate-200">¡Aún no hay equipos añadidos!</h3>
+          <p class="text-sm text-slate-400 max-w-md mx-auto mt-1 mb-4">Crea los equipos desde la pestaña 'Gestión de Equipos' o usa el botón 'Cargar Demo' arriba para probar rápido.</p>
+          <button onclick="switchView('teams')" class="bg-twincon-orange hover:bg-orange-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition">
+            + Añadir Equipos Ahora
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= VISTA 2: PARTIDOS Y MARCADORES ================= -->
+    <section id="view-matches" class="space-y-6 hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl">
+        
+        <!-- HEADER DE ACCIONES DE PARTIDOS -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+          <div>
+            <h2 class="font-display font-extrabold text-xl sm:text-2xl text-white flex items-center gap-2">
+              <span class="text-sky-400">⚔️</span> Calendario y Marcadores iPad
+            </h2>
+            <p class="text-xs text-slate-400">Sumador táctil gigante optimizado para dedos en Educación Física.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="generateRoundRobin()" class="btn-bounce bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-500 hover:to-blue-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm shadow-lg shadow-sky-500/20 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>Generar Calendario Completo</span>
+            </button>
+
+            <button onclick="openAddMatchModal()" class="btn-bounce bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-1.5">
+              <span>+ Partido Manual</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- LISTA DE TARJETAS DE PARTIDOS -->
+        <div id="matchesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Renderizado con JS -->
+        </div>
+
+        <div id="noMatchesWarning" class="hidden text-center py-12 px-4">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center text-3xl">⚔️</div>
+          <h3 class="font-display font-bold text-lg text-slate-200">No hay partidos programados</h3>
+          <p class="text-sm text-slate-400 max-w-md mx-auto mt-1 mb-4">Genera el calendario automático 'Todos contra Todos' o añade enfrentamientos manuales.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= VISTA 3: GESTIÓN DE EQUIPOS ================= -->
+    <section id="view-teams" class="space-y-6 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- FORMULARIO CREAR EQUIPO -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl h-fit">
+          <h3 class="font-display font-extrabold text-lg text-white mb-4 flex items-center gap-2">
+            <span class="text-twincon-orange">➕</span> Nuevo Equipo
+          </h3>
+          
+          <form onsubmit="handleAddTeam(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre del Equipo *</label>
+              <input type="text" id="newTeamName" required placeholder="Ej: Los Dragones del Twincon" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-twincon-orange transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Escudo / Logo (Opcional)</label>
+              <div class="flex items-center gap-3">
+                <div id="newTeamShieldPreview" class="w-14 h-14 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <span class="text-slate-600 text-xs">Sin foto</span>
+                </div>
+                <input type="file" id="newTeamShieldFile" accept="image/*" onchange="previewNewTeamShield(event)" class="text-xs text-slate-400 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer">
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1.5">Si no subes foto, se creará un escudo Twincon de forma automática.</p>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-twincon-orange to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-orange-500/20 transition flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+              <span>Registrar Equipo</span>
+            </button>
+          </form>
+
+          <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+            <button onclick="confirmResetClassData()" class="text-xs text-rose-400 hover:text-rose-300 font-semibold underline transition">
+              🗑️ Borrar todos los datos de esta clase
+            </button>
+          </div>
+        </div>
+
+        <!-- LISTADO Y EDICIÓN DE EQUIPOS -->
+        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-display font-extrabold text-lg text-white flex items-center gap-2">
+              <span class="text-sky-400">🛡️</span> Equipos Inscritos (<span id="teamCountBadge">0</span>)
+            </h3>
+            <span class="text-xs text-slate-400">Haz clic en el escudo para cambiar la foto</span>
+          </div>
+
+          <div id="teamsList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Renderizado con JS -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= VISTA DE IMPRESIÓN / PÓSTER A4 (SE MUESTRA EN MODAL O AL IMPRIMIR) ================= -->
+  <div id="printModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex flex-col justify-between overflow-y-auto no-print">
+    <div class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-10 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">📄</span>
+        <div>
+          <h3 class="font-display font-bold text-base text-white">Vista Previa Póster de Gimnasio (A4)</h3>
+          <p class="text-xs text-slate-400">Listo para imprimir en papel o guardar en PDF directo.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="downloadPDFDirect()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span>Descargar PDF</span>
+        </button>
+        <button onclick="window.print()" class="bg-twincon-orange hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          <span>Imprimir Pantalla</span>
+        </button>
+        <button onclick="closePrintModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2 rounded-xl text-xs">
+          ✕ Cerrar
+        </button>
+      </div>
+    </div>
+
+    <!-- PÓSTER IMPRIMIBLE CONTENEDOR A4 -->
+    <div class="flex-grow p-4 flex justify-center items-start">
+      <div id="printableArea" class="bg-white text-slate-900 p-8 rounded-none w-full max-w-[210mm] min-h-[297mm] shadow-2xl print-container font-sans text-xs flex flex-col justify-between">
+        
+        <div>
+          <!-- CABECERA PÓSTER -->
+          <div class="border-b-4 border-orange-500 pb-4 mb-4 flex justify-between items-center">
+            <div>
+              <h1 class="font-display font-black text-2xl text-slate-900 tracking-tight">LIGA DE TWINCON • EF</h1>
+              <p class="font-bold text-orange-600 text-sm" id="printClassTitle">CLASE: 4.º A</p>
+            </div>
+            <div class="text-right">
+              <span class="bg-slate-900 text-white font-bold px-3 py-1 rounded text-xs">ED. FÍSICA</span>
+              <p class="text-[10px] text-slate-500 mt-1" id="printDate">Fecha: --/--/----</p>
+            </div>
+          </div>
+
+          <!-- SECCIÓN CLASIFICACIÓN PÓSTER CON ESCUDOS GIGANTES -->
+          <div class="mb-6">
+            <h2 class="font-display font-bold text-sm uppercase text-slate-800 border-b-2 border-slate-200 pb-1 mb-3 flex items-center justify-between">
+              <span>🏆 CLASIFICACIÓN GENERAL</span>
+              <span class="text-[10px] text-slate-500 font-normal">Vic = 3 pts | Emp = 2 pts | Der = 1 pt</span>
+            </h2>
+
+            <table class="w-full text-left border-collapse border border-slate-300 text-slate-900">
+              <thead>
+                <tr class="bg-slate-100 text-[10px] font-bold uppercase border-b border-slate-300">
+                  <th class="p-1.5 text-center w-8">POS</th>
+                  <th class="p-1.5">EQUIPO & ESCUDO</th>
+                  <th class="p-1.5 text-center">PJ</th>
+                  <th class="p-1.5 text-center">PG</th>
+                  <th class="p-1.5 text-center">PE</th>
+                  <th class="p-1.5 text-center">PP</th>
+                  <th class="p-1.5 text-center">CF</th>
+                  <th class="p-1.5 text-center">CC</th>
+                  <th class="p-1.5 text-center">DG</th>
+                  <th class="p-1.5 text-center font-black bg-orange-100 text-orange-900">PTS</th>
+                </tr>
+              </thead>
+              <tbody id="printStandingsBody">
+                <!-- JS Inject -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- SECCIÓN RESULTADOS / CALENDARIO EN PÓSTER -->
+          <div>
+            <h2 class="font-display font-bold text-sm uppercase text-slate-800 border-b-2 border-slate-200 pb-1 mb-3">
+              ⚔️ JORNADAS Y RESULTADOS
+            </h2>
+            <div id="printMatchesGrid" class="grid grid-cols-2 gap-2 text-[11px]">
+              <!-- JS Inject -->
+            </div>
+          </div>
+        </div>
+
+        <!-- PIE DE PÓSTER DE GIMNASIO -->
+        <div class="border-t border-slate-300 pt-3 mt-6 text-center text-[10px] text-slate-500 flex justify-between items-center">
+          <span>Dep. Educación Física • Trabajo en Equipo, Respeto y Juego Limpio</span>
+          <span>Fuerza, Agilidad y Compañerismo 🔶🔵</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTAINER DE IMPRESIÓN DIRECTA DEL NAVEGADOR -->
+  <div id="printOnlyArea" class="print-only">
+    <!-- Se clona el contenido A4 para `window.print()` sin modales -->
+  </div>
+
+  <!-- MODAL AÑADIR PARTIDO MANUAL -->
+  <div id="addMatchModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl">
+      <h3 class="font-display font-bold text-lg text-white mb-4">Añadir Partido Manual</h3>
+      
+      <form onsubmit="handleSaveManualMatch(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Equipo Local</label>
+          <select id="manualTeam1Select" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-twincon-orange">
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Equipo Visitante</label>
+          <select id="manualTeam2Select" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-twincon-orange">
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button type="button" onclick="closeAddMatchModal()" class="w-1/2 bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl text-sm hover:bg-slate-700">
+            Cancelar
+          </button>
+          <button type="submit" class="w-1/2 bg-twincon-orange text-white font-bold py-2.5 rounded-xl text-sm hover:bg-orange-600 shadow-lg shadow-orange-500/20">
+            Crear Partido
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMACIÓN GENÉRICO -->
+  <div id="confirmModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl">
+      <div class="w-14 h-14 bg-rose-500/10 text-rose-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">⚠️</div>
+      <h3 class="font-display font-bold text-base text-white mb-2" id="confirmModalTitle">¿Estás seguro?</h3>
+      <p class="text-xs text-slate-400 mb-5" id="confirmModalText">Esta acción no se puede deshacer.</p>
+      
+      <div class="flex items-center gap-3">
+        <button id="confirmModalCancelBtn" class="w-1/2 bg-slate-800 text-slate-300 font-semibold py-2 rounded-xl text-xs hover:bg-slate-700">
+          Cancelar
+        </button>
+        <button id="confirmModalOkBtn" class="w-1/2 bg-rose-600 text-white font-bold py-2 rounded-xl text-xs hover:bg-rose-700 shadow-lg shadow-rose-600/20">
+          Sí, confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 border-t border-slate-900 py-3 px-4 text-center text-xs text-slate-500 no-print">
+    <p>Liga Twincon Educación Física • Sistema 3-2-1 • Diseñado para iPad y Tabletas en Gimnasio</p>
+  </footer>
+
+  <!-- ================= LÓGICA JAVASCRIPT ================= -->
+  <script>
+    // LISTA DE SUBGRUPOS (8 CLASES DE PRIMARIA)
+    const CLASSES = ['4.º A', '4.º B', '4.º C', '5.º A', '5.º B', '5.º C', '6.º A', '6.º C'];
+    
+    // ESTADO GLOBAL DE LA APLICACIÓN
+    let currentClass = CLASSES[0];
+    let appData = {
+      teams: [],  // { id, name, crest }
+      matches: [] // { id, team1Id, team2Id, score1, score2, played }
+    };
+
+    let tempNewTeamShield = null;
+    let currentView = 'standings';
+
+    // AL CARGAR LA PÁGINA
+    window.onload = function() {
+      renderClassTabs();
+      loadClassData(currentClass);
+      setupFileInputListener();
+    };
+
+    // -------------------------------------------------------------
+    // GESTIÓN DE PESTAÑAS DE CLASE Y LOCALSTORAGE
+    // -------------------------------------------------------------
+    function renderClassTabs() {
+      const container = document.getElementById('classTabsContainer');
+      container.innerHTML = CLASSES.map(cls => {
+        const active = cls === currentClass;
+        return `
+          <button onclick="changeClass('${cls}')" class="btn-bounce whitespace-nowrap px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition flex items-center gap-2 ${
+            active 
+              ? 'bg-gradient-to-r from-twincon-orange to-amber-500 text-white shadow-lg shadow-orange-500/30 ring-2 ring-orange-400/40' 
+              : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border border-slate-700/60'
+          }">
+            <span class="${active ? 'text-white' : 'text-twincon-orange'}">🏫</span>
+            <span>${cls}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function changeClass(cls) {
+      currentClass = cls;
+      renderClassTabs();
+      loadClassData(cls);
+    }
+
+    function getStorageKey(cls) {
+      return `twincon_league_data_${cls.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    }
+
+    function loadClassData(cls) {
+      const stored = localStorage.getItem(getStorageKey(cls));
+      if (stored) {
+        try {
+          appData = JSON.parse(stored);
+        } catch(e) {
+          appData = { teams: [], matches: [] };
+        }
+      } else {
+        appData = { teams: [], matches: [] };
+      }
+      updateUI();
+    }
+
+    function saveClassData() {
+      localStorage.setItem(getStorageKey(currentClass), JSON.stringify(appData));
+      updateUI();
+    }
+
+    // -------------------------------------------------------------
+    // ACTUALIZACIÓN GENERAL DE INTERFAZ
+    // -------------------------------------------------------------
+    function updateUI() {
+      document.getElementById('activeClassNameLabel').innerText = `Clase Activa: ${currentClass}`;
+      document.getElementById('teamCountBadge').innerText = appData.teams.length;
+      
+      calculateStatsSummary();
+      renderStandings();
+      renderMatches();
+      renderTeamsList();
+    }
+
+    // -------------------------------------------------------------
+    // ESCUDOS SVG Y COMPRESIÓN EN CANVAS (300x300 px)
+    // -------------------------------------------------------------
+    function generateDefaultCrestSVG(teamName) {
+      const initials = (teamName || 'TW').split(' ').map(w => w[0]).join('').substring(0, 3).toUpperCase();
+      const colors = [
+        ['#F97316', '#0284C7'],
+        ['#0284C7', '#EAB308'],
+        ['#10B981', '#F97316'],
+        ['#8B5CF6', '#EC4899'],
+        ['#EF4444', '#0284C7']
+      ];
+      // Selección determinista de color basada en el nombre
+      let hash = 0;
+      for (let i = 0; i < teamName.length; i++) hash = teamName.charCodeAt(i) + ((hash << 5) - hash);
+      const pair = colors[Math.abs(hash) % colors.length];
+
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <linearGradient id="grad_${hash}" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="${pair[0]}" />
+              <stop offset="100%" stop-color="${pair[1]}" />
+            </linearGradient>
+          </defs>
+          <path d="M50 5 L88 20 L88 55 C88 75 50 95 50 95 C50 95 12 75 12 55 L12 20 Z" fill="url(#grad_${hash})" stroke="#FFFFFF" stroke-width="4"/>
+          <path d="M50 14 L78 26 L78 52 C78 68 50 84 50 84 C50 84 22 68 22 52 L22 26 Z" fill="#0F172A" opacity="0.4"/>
+          <!-- Cono Twincon estilizado en fondo -->
+          <path d="M38 68 L50 32 L62 68 Z" fill="#FFFFFF" opacity="0.3"/>
+          <text x="50" y="62" font-family="Montserrat, sans-serif" font-weight="900" font-size="28" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle" letter-spacing="-1">${initials}</text>
+        </svg>
+      `;
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    }
+
+    function compressImage(file, callback) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 300;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDim) {
+              height *= maxDim / width;
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width *= maxDim / height;
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/png', 0.85);
+          callback(dataUrl);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function previewNewTeamShield(event) {
+      const file = event.target.files[0];
+      if (file) {
+        compressImage(file, (dataUrl) => {
+          tempNewTeamShield = dataUrl;
+          document.getElementById('newTeamShieldPreview').innerHTML = `<img src="${dataUrl}" class="w-full h-full object-contain p-1">`;
+        });
+      }
+    }
+
+    function setupFileInputListener() {
+      // Escuchador genérico
+    }
+
+    // -------------------------------------------------------------
+    // CÁLCULO DE PUNTOS Y CLASIFICACIÓN (SISTEMA 3 - 2 - 1)
+    // -------------------------------------------------------------
+    function calculateStandings() {
+      const standingsMap = {};
+
+      appData.teams.forEach(t => {
+        standingsMap[t.id] = {
+          id: t.id,
+          name: t.name,
+          crest: t.crest || generateDefaultCrestSVG(t.name),
+          pj: 0,
+          pg: 0,
+          pe: 0,
+          pp: 0,
+          cf: 0,
+          cc: 0,
+          dg: 0,
+          pts: 0
+        };
+      });
+
+      appData.matches.forEach(m => {
+        if (m.played && standingsMap[m.team1Id] && standingsMap[m.team2Id]) {
+          const t1 = standingsMap[m.team1Id];
+          const t2 = standingsMap[m.team2Id];
+
+          t1.pj += 1;
+          t2.pj += 1;
+
+          t1.cf += m.score1;
+          t1.cc += m.score2;
+          t2.cf += m.score2;
+          t2.cc += m.score1;
+
+          if (m.score1 > m.score2) {
+            // Victoria Team 1 (3 ptos), Derrota Team 2 (1 pt)
+            t1.pg += 1;
+            t1.pts += 3;
+            t2.pp += 1;
+            t2.pts += 1;
+          } else if (m.score2 > m.score1) {
+            // Victoria Team 2 (3 ptos), Derrota Team 1 (1 pt)
+            t2.pg += 1;
+            t2.pts += 3;
+            t1.pp += 1;
+            t1.pts += 1;
+          } else {
+            // Empate (2 ptos cada uno)
+            t1.pe += 1;
+            t1.pts += 2;
+            t2.pe += 1;
+            t2.pts += 2;
+          }
+
+          t1.dg = t1.cf - t1.cc;
+          t2.dg = t2.cf - t2.cc;
+        }
+      });
+
+      const sorted = Object.values(standingsMap).sort((a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts; // 1. Puntos
+        if (b.dg !== a.dg) return b.dg - a.dg;   // 2. Diferencia de conos
+        if (b.cf !== a.cf) return b.cf - a.cf;   // 3. Conos a favor
+        return a.name.localeCompare(b.name);
+      });
+
+      return sorted;
+    }
+
+    function calculateStatsSummary() {
+      const standings = calculateStandings();
+      const totalTeams = appData.teams.length;
+      const totalMatches = appData.matches.length;
+      const playedMatches = appData.matches.filter(m => m.played).length;
+      
+      let totalCones = 0;
+      appData.matches.forEach(m => {
+        if (m.played) totalCones += (m.score1 + m.score2);
+      });
+
+      document.getElementById('statTotalTeams').innerText = totalTeams;
+      document.getElementById('statMatchesPlayed').innerText = `${playedMatches} / ${totalMatches}`;
+      document.getElementById('statTotalCones').innerText = totalCones;
+      
+      if (standings.length > 0 && standings[0].pj > 0) {
+        document.getElementById('statLeaderName').innerText = standings[0].name;
+      } else if (standings.length > 0) {
+        document.getElementById('statLeaderName').innerText = standings[0].name + ' (Por jugar)';
+      } else {
+        document.getElementById('statLeaderName').innerText = '-';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // RENDERIZADO DE LA TABLA DE CLASIFICACIÓN (ESCUDOS PROTAGONISTAS)
+    // -------------------------------------------------------------
+    function renderStandings() {
+      const standings = calculateStandings();
+      const tbody = document.getElementById('standingsTableBody');
+      const warning = document.getElementById('noTeamsWarning');
+
+      if (appData.teams.length === 0) {
+        tbody.innerHTML = '';
+        warning.classList.remove('hidden');
+        return;
+      }
+      warning.classList.add('hidden');
+
+      tbody.innerHTML = standings.map((team, index) => {
+        const isPodium = index < 3;
+        const podiumColors = [
+          'bg-amber-500/10 border-amber-500/40 text-amber-400', // 1º Oro
+          'bg-slate-400/10 border-slate-400/40 text-slate-300', // 2º Plata
+          'bg-amber-700/10 border-amber-700/40 text-amber-600'  // 3º Bronce
+        ];
+        const badgeStyle = isPodium ? podiumColors[index] : 'bg-slate-800 text-slate-400 border-slate-700';
+
+        return `
+          <tr class="hover:bg-slate-800/50 transition">
+            <!-- POSICIÓN -->
+            <td class="py-4 px-3 text-center">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl font-display font-black text-sm border ${badgeStyle}">
+                ${index + 1}
+              </span>
+            </td>
+
+            <!-- ESCUDO EXTRA GRANDE & NOMBRE -->
+            <td class="py-4 px-4">
+              <div class="flex items-center gap-4">
+                <!-- ESCUDO DE IMPACTO (w-16 h-16 / 64px) -->
+                <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-950 p-1.5 border-2 ${index === 0 ? 'border-amber-400 badge-glow' : 'border-slate-700'} flex items-center justify-center shadow-xl flex-shrink-0">
+                  <img src="${team.crest}" alt="${team.name}" class="w-full h-full object-contain filter drop-shadow-md">
+                </div>
+                <div>
+                  <h4 class="font-display font-extrabold text-base sm:text-lg text-white leading-snug">${team.name}</h4>
+                  <span class="text-[11px] text-slate-400 font-medium">${team.pj} partido${team.pj !== 1 ? 's' : ''} disputado${team.pj !== 1 ? 's' : ''}</span>
+                </div>
+              </div>
+            </td>
+
+            <td class="py-4 px-2 text-center font-semibold text-slate-300">${team.pj}</td>
+            <td class="py-4 px-2 text-center font-bold text-emerald-400">${team.pg}</td>
+            <td class="py-4 px-2 text-center font-bold text-amber-400">${team.pe}</td>
+            <td class="py-4 px-2 text-center font-bold text-rose-400">${team.pp}</td>
+            <td class="py-4 px-2 text-center font-bold text-sky-400">${team.cf}</td>
+            <td class="py-4 px-2 text-center font-bold text-orange-400">${team.cc}</td>
+            <td class="py-4 px-2 text-center font-bold ${team.dg > 0 ? 'text-emerald-400' : team.dg < 0 ? 'text-rose-400' : 'text-slate-400'}">
+              ${team.dg > 0 ? '+' + team.dg : team.dg}
+            </td>
+            <!-- PUNTOS DESTACADOS -->
+            <td class="py-4 px-4 text-center">
+              <span class="inline-block bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 font-display font-black text-lg px-3 py-1 rounded-xl shadow-md">
+                ${team.pts}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // -------------------------------------------------------------
+    // RENDERIZADO DE PARTIDOS & MARCADORES TÁCTILES IPAD
+    // -------------------------------------------------------------
+    function renderMatches() {
+      const container = document.getElementById('matchesContainer');
+      const warning = document.getElementById('noMatchesWarning');
+
+      if (appData.matches.length === 0) {
+        container.innerHTML = '';
+        warning.classList.remove('hidden');
+        return;
+      }
+      warning.classList.add('hidden');
+
+      const teamMap = {};
+      appData.teams.forEach(t => teamMap[t.id] = t);
+
+      container.innerHTML = appData.matches.map((match, idx) => {
+        const t1 = teamMap[match.team1Id] || { name: 'Equipo eliminado', crest: generateDefaultCrestSVG('?') };
+        const t2 = teamMap[match.team2Id] || { name: 'Equipo eliminado', crest: generateDefaultCrestSVG('?') };
+        
+        const crest1 = t1.crest || generateDefaultCrestSVG(t1.name);
+        const crest2 = t2.crest || generateDefaultCrestSVG(t2.name);
+
+        return `
+          <div class="bg-slate-950 border ${match.played ? 'border-emerald-500/30' : 'border-slate-800'} rounded-3xl p-4 sm:p-5 shadow-xl flex flex-col justify-between transition relative overflow-hidden">
+            
+            <!-- HEADER TARJETA PARTIDO -->
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-900">
+              <span class="text-xs font-bold text-slate-400 flex items-center gap-1">
+                <span>📍 Partido #${idx + 1}</span>
+              </span>
+              
+              <div class="flex items-center gap-2">
+                <button onclick="toggleMatchStatus('${match.id}')" class="px-2.5 py-1 rounded-xl text-xs font-bold transition ${
+                  match.played 
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' 
+                    : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                }">
+                  ${match.played ? '✓ Finalizado' : '⏳ Pendiente'}
+                </button>
+                <button onclick="deleteMatch('${match.id}')" class="text-slate-600 hover:text-rose-400 text-xs p-1" title="Eliminar partido">✕</button>
+              </div>
+            </div>
+
+            <!-- ZONA DE ENFRENTAMIENTO CON ESCUDOS GIGANTES Y MARCADOR -->
+            <div class="grid grid-cols-7 items-center gap-2 text-center my-2">
+              
+              <!-- EQUIPO 1 -->
+              <div class="col-span-3 flex flex-col items-center">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-900 p-1.5 border border-slate-700 shadow-lg flex items-center justify-center mb-2">
+                  <img src="${crest1}" alt="${t1.name}" class="w-full h-full object-contain">
+                </div>
+                <p class="font-display font-extrabold text-sm sm:text-base text-white leading-tight truncate w-full px-1">${t1.name}</p>
+                
+                <!-- BOTONES SUMAR/RESTAR IPAD TEAM 1 -->
+                <div class="flex items-center justify-center gap-2 mt-3">
+                  <button onclick="updateScore('${match.id}', 1, -1)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold text-xl flex items-center justify-center active:scale-90 transition">
+                    -
+                  </button>
+                  <span class="font-display font-black text-2xl text-amber-400 w-8">${match.score1}</span>
+                  <button onclick="updateScore('${match.id}', 1, 1)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xl flex items-center justify-center active:scale-90 transition">
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <!-- VS -->
+              <div class="col-span-1 flex flex-col items-center justify-center">
+                <span class="font-display font-black text-slate-600 text-sm italic">VS</span>
+              </div>
+
+              <!-- EQUIPO 2 -->
+              <div class="col-span-3 flex flex-col items-center">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-900 p-1.5 border border-slate-700 shadow-lg flex items-center justify-center mb-2">
+                  <img src="${crest2}" alt="${t2.name}" class="w-full h-full object-contain">
+                </div>
+                <p class="font-display font-extrabold text-sm sm:text-base text-white leading-tight truncate w-full px-1">${t2.name}</p>
+
+                <!-- BOTONES SUMAR/RESTAR IPAD TEAM 2 -->
+                <div class="flex items-center justify-center gap-2 mt-3">
+                  <button onclick="updateScore('${match.id}', 2, -1)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold text-xl flex items-center justify-center active:scale-90 transition">
+                    -
+                  </button>
+                  <span class="font-display font-black text-2xl text-amber-400 w-8">${match.score2}</span>
+                  <button onclick="updateScore('${match.id}', 2, 1)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xl flex items-center justify-center active:scale-90 transition">
+                    +
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateScore(matchId, teamNum, delta) {
+      const match = appData.matches.find(m => m.id === matchId);
+      if (!match) return;
+
+      if (teamNum === 1) {
+        match.score1 = Math.max(0, match.score1 + delta);
+      } else {
+        match.score2 = Math.max(0, match.score2 + delta);
+      }
+      match.played = true; // Al tocar marcadores se da por jugado
+      saveClassData();
+    }
+
+    function toggleMatchStatus(matchId) {
+      const match = appData.matches.find(m => m.id === matchId);
+      if (match) {
+        match.played = !match.played;
+        saveClassData();
+      }
+    }
+
+    function deleteMatch(matchId) {
+      appData.matches = appData.matches.filter(m => m.id !== matchId);
+      saveClassData();
+    }
+
+    // GENERAR CALENDARIO TODOS CONTRA TODOS (ROUND ROBIN)
+    function generateRoundRobin() {
+      if (appData.teams.length < 2) {
+        showCustomConfirm('Se necesitan al menos 2 equipos para generar el calendario.', 'Aviso', false);
+        return;
+      }
+
+      showCustomConfirm('¿Quieres generar el calendario automátoco "Todos contra Todos"? Los partidos existentes se mantendrán o reemplazarán.', 'Generar Calendario', true, () => {
+        const teams = appData.teams;
+        const newMatches = [];
+        
+        for (let i = 0; i < teams.length; i++) {
+          for (let j = i + 1; j < teams.length; j++) {
+            newMatches.push({
+              id: 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+              team1Id: teams[i].id,
+              team2Id: teams[j].id,
+              score1: 0,
+              score2: 0,
+              played: false
+            });
+          }
+        }
+
+        appData.matches = newMatches;
+        saveClassData();
+      });
+    }
+
+    // -------------------------------------------------------------
+    // GESTIÓN DE EQUIPOS (CREAR, EDITAR ESCUDO, BORRAR)
+    // -------------------------------------------------------------
+    function handleAddTeam(event) {
+      event.preventDefault();
+      const nameInput = document.getElementById('newTeamName');
+      const name = nameInput.value.trim();
+      if (!name) return;
+
+      const newTeam = {
+        id: 't_' + Date.now(),
+        name: name,
+        crest: tempNewTeamShield || generateDefaultCrestSVG(name)
+      };
+
+      appData.teams.push(newTeam);
+      
+      // Limpieza formulario
+      nameInput.value = '';
+      tempNewTeamShield = null;
+      document.getElementById('newTeamShieldPreview').innerHTML = `<span class="text-slate-600 text-xs">Sin foto</span>`;
+      document.getElementById('newTeamShieldFile').value = '';
+
+      saveClassData();
+    }
+
+    function renderTeamsList() {
+      const container = document.getElementById('teamsList');
+      if (appData.teams.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 italic col-span-2 text-center py-6">No hay equipos registrados en ${currentClass}.</p>`;
+        return;
+      }
+
+      container.innerHTML = appData.teams.map(team => {
+        const crest = team.crest || generateDefaultCrestSVG(team.name);
+        return `
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-lg hover:border-slate-700 transition">
+            
+            <!-- ESCUDO CAMBIABLE CON CLIC -->
+            <div class="relative group cursor-pointer" onclick="triggerChangeCrest('${team.id}')" title="Haz clic para cambiar el escudo">
+              <div class="w-16 h-16 rounded-2xl bg-slate-900 border-2 border-twincon-orange p-1 flex items-center justify-center overflow-hidden shadow-md">
+                <img src="${crest}" alt="${team.name}" class="w-full h-full object-contain">
+              </div>
+              <div class="absolute inset-0 bg-slate-950/70 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-[10px] text-white font-bold text-center px-1">
+                Cambiar Foto
+              </div>
+            </div>
+
+            <!-- EDICIÓN DE NOMBRE EN LÍNEA -->
+            <div class="flex-grow">
+              <input type="text" value="${team.name}" onchange="updateTeamName('${team.id}', this.value)" class="bg-transparent font-display font-extrabold text-base text-white border-b border-transparent hover:border-slate-700 focus:border-twincon-orange focus:bg-slate-900 px-1.5 py-1 rounded w-full focus:outline-none transition">
+              <p class="text-[11px] text-slate-500 pl-1">Haz clic en el texto para editar el nombre</p>
+            </div>
+
+            <!-- BOTÓN BORRAR EQUIPO -->
+            <button onclick="confirmDeleteTeam('${team.id}', '${team.name}')" class="text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 p-2 rounded-xl transition" title="Eliminar equipo">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateTeamName(teamId, newName) {
+      const name = newName.trim();
+      if (!name) return;
+      const team = appData.teams.find(t => t.id === teamId);
+      if (team) {
+        team.name = name;
+        saveClassData();
+      }
+    }
+
+    function triggerChangeCrest(teamId) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          compressImage(file, (dataUrl) => {
+            const team = appData.teams.find(t => t.id === teamId);
+            if (team) {
+              team.crest = dataUrl;
+              saveClassData();
+            }
+          });
+        }
+      };
+      input.click();
+    }
+
+    function confirmDeleteTeam(teamId, teamName) {
+      showCustomConfirm(`¿Borrar el equipo "${teamName}"? También se eliminarán sus partidos para mantener la clasificación limpia.`, 'Eliminar Equipo', true, () => {
+        appData.teams = appData.teams.filter(t => t.id !== teamId);
+        appData.matches = appData.matches.filter(m => m.team1Id !== teamId && m.team2Id !== teamId);
+        saveClassData();
+      });
+    }
+
+    function confirmResetClassData() {
+      showCustomConfirm(`¿Seguro que deseas borrar TODOS los equipos y partidos de la clase ${currentClass}?`, 'Restablecer Clase', true, () => {
+        appData = { teams: [], matches: [] };
+        saveClassData();
+      });
+    }
+
+    // -------------------------------------------------------------
+    // MODAL Y GENERACIÓN VISTA IMPRESIONES / PÓSTER A4
+    // -------------------------------------------------------------
+    function openPrintModal() {
+      document.getElementById('printClassTitle').innerText = `CLASE: ${currentClass}`;
+      document.getElementById('printDate').innerText = `Fecha: ${new Date().toLocaleDateString('es-ES')}`;
+
+      // Renderizar Clasificación en Póster
+      const standings = calculateStandings();
+      const printStandingsBody = document.getElementById('printStandingsBody');
+      
+      printStandingsBody.innerHTML = standings.map((team, idx) => `
+        <tr class="${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'} border-b border-slate-200">
+          <td class="p-1.5 text-center font-bold">${idx + 1}º</td>
+          <td class="p-1.5 flex items-center gap-2">
+            <!-- ESCUDO DE IMPACTO EN IMPRESIÓN (48px - 56px) -->
+            <img src="${team.crest}" class="w-12 h-12 object-contain flex-shrink-0">
+            <span class="font-bold text-xs">${team.name}</span>
+          </td>
+          <td class="p-1.5 text-center font-semibold">${team.pj}</td>
+          <td class="p-1.5 text-center font-semibold text-emerald-700">${team.pg}</td>
+          <td class="p-1.5 text-center font-semibold text-amber-700">${team.pe}</td>
+          <td class="p-1.5 text-center font-semibold text-rose-700">${team.pp}</td>
+          <td class="p-1.5 text-center font-semibold">${team.cf}</td>
+          <td class="p-1.5 text-center font-semibold">${team.cc}</td>
+          <td class="p-1.5 text-center font-semibold">${team.dg > 0 ? '+' + team.dg : team.dg}</td>
+          <td class="p-1.5 text-center font-black text-sm bg-orange-100 text-orange-900">${team.pts}</td>
+        </tr>
+      `).join('');
+
+      // Renderizar Enfrentamientos en Póster
+      const printMatchesGrid = document.getElementById('printMatchesGrid');
+      const teamMap = {};
+      appData.teams.forEach(t => teamMap[t.id] = t);
+
+      printMatchesGrid.innerHTML = appData.matches.map((m, i) => {
+        const t1 = teamMap[m.team1Id] || { name: 'Eliminado', crest: '' };
+        const t2 = teamMap[m.team2Id] || { name: 'Eliminado', crest: '' };
+        return `
+          <div class="border border-slate-300 rounded p-2 bg-slate-50 flex items-center justify-between">
+            <div class="flex items-center gap-1.5 w-5/12 overflow-hidden">
+              <img src="${t1.crest || generateDefaultCrestSVG(t1.name)}" class="w-8 h-8 object-contain">
+              <span class="font-bold truncate text-[10px]">${t1.name}</span>
+            </div>
+            
+            <div class="w-2/12 text-center font-black text-xs bg-slate-200 py-0.5 rounded">
+              ${m.played ? `${m.score1} - ${m.score2}` : 'VS'}
+            </div>
+
+            <div class="flex items-center gap-1.5 justify-end w-5/12 overflow-hidden">
+              <span class="font-bold truncate text-[10px] text-right">${t2.name}</span>
+              <img src="${t2.crest || generateDefaultCrestSVG(t2.name)}" class="w-8 h-8 object-contain">
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('printModal').classList.remove('hidden');
+    }
+
+    function closePrintModal() {
+      document.getElementById('printModal').classList.add('hidden');
+    }
+
+    function downloadPDFDirect() {
+      const element = document.getElementById('printableArea');
+      const opt = {
+        margin:       [8, 8, 8, 8],
+        filename:     `Liga_Twincon_${currentClass.replace(/\s+/g, '_')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // -------------------------------------------------------------
+    // MODAL AÑADIR PARTIDO MANUAL
+    // -------------------------------------------------------------
+    function openAddMatchModal() {
+      if (appData.teams.length < 2) {
+        showCustomConfirm('Se necesitan al menos 2 equipos para crear un partido.', 'Aviso', false);
+        return;
+      }
+
+      const select1 = document.getElementById('manualTeam1Select');
+      const select2 = document.getElementById('manualTeam2Select');
+      
+      const optionsHTML = appData.teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      select1.innerHTML = optionsHTML;
+      select2.innerHTML = optionsHTML;
+      if (select2.options.length > 1) select2.selectedIndex = 1;
+
+      document.getElementById('addMatchModal').classList.remove('hidden');
+    }
+
+    function closeAddMatchModal() {
+      document.getElementById('addMatchModal').classList.add('hidden');
+    }
+
+    function handleSaveManualMatch(event) {
+      event.preventDefault();
+      const id1 = document.getElementById('manualTeam1Select').value;
+      const id2 = document.getElementById('manualTeam2Select').value;
+
+      if (id1 === id2) {
+        showCustomConfirm('Elige dos equipos diferentes.', 'Error', false);
+        return;
+      }
+
+      appData.matches.push({
+        id: 'm_' + Date.now(),
+        team1Id: id1,
+        team2Id: id2,
+        score1: 0,
+        score2: 0,
+        played: false
+      });
+
+      saveClassData();
+      closeAddMatchModal();
+    }
+
+    // -------------------------------------------------------------
+    // EXPORTACIÓN & IMPORTACIÓN JSON
+    // -------------------------------------------------------------
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `twincon_datos_${currentClass.replace(/\s+/g, '_')}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.teams && imported.matches) {
+            appData = imported;
+            saveClassData();
+            showCustomConfirm(`¡Datos importados con éxito para la clase ${currentClass}!`, 'Éxito', false);
+          } else {
+            showCustomConfirm('El archivo JSON no tiene la estructura correcta.', 'Error', false);
+          }
+        } catch(err) {
+          showCustomConfirm('Error al leer el archivo JSON.', 'Error', false);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // CARGAR DATOS DEMO PARA PRUEBAS RÁPIDAS
+    function loadDemoData() {
+      showCustomConfirm(`¿Cargar datos de demostración en la clase ${currentClass}?`, 'Cargar Demo', true, () => {
+        const demoTeams = [
+          { id: 't_demo1', name: 'Los Conos Voladores', crest: generateDefaultCrestSVG('Los Conos Voladores') },
+          { id: 't_demo2', name: 'Rayo Twincon', crest: generateDefaultCrestSVG('Rayo Twincon') },
+          { id: 't_demo3', name: 'Halcones Dorados', crest: generateDefaultCrestSVG('Halcones Dorados') },
+          { id: 't_demo4', name: 'Titanes del Gimnasio', crest: generateDefaultCrestSVG('Titanes del Gimnasio') }
+        ];
+
+        const demoMatches = [
+          { id: 'm_demo1', team1Id: 't_demo1', team2Id: 't_demo2', score1: 5, score2: 3, played: true },
+          { id: 'm_demo2', team1Id: 't_demo3', team2Id: 't_demo4', score1: 2, score2: 2, played: true },
+          { id: 'm_demo3', team1Id: 't_demo1', team2Id: 't_demo3', score1: 4, score2: 1, played: true },
+          { id: 'm_demo4', team1Id: 't_demo2', team2Id: 't_demo4', score1: 0, score2: 0, played: false }
+        ];
+
+        appData = { teams: demoTeams, matches: demoMatches };
+        saveClassData();
+      });
+    }
+
+    // -------------------------------------------------------------
+    // MODAL DE CONFIRMACIÓN PERSONALIZADO (SIN ALERTS NATIVOS)
+    // -------------------------------------------------------------
+    function showCustomConfirm(message, title = 'Confirmar', showCancel = true, onConfirm = null) {
+      document.getElementById('confirmModalTitle').innerText = title;
+      document.getElementById('confirmModalText').innerText = message;
+      
+      const cancelBtn = document.getElementById('confirmModalCancelBtn');
+      const okBtn = document.getElementById('confirmModalOkBtn');
+
+      if (showCancel) {
+        cancelBtn.classList.remove('hidden');
+      } else {
+        cancelBtn.classList.add('hidden');
+      }
+
+      cancelBtn.onclick = () => document.getElementById('confirmModal').classList.add('hidden');
+      okBtn.onclick = () => {
+        document.getElementById('confirmModal').classList.add('hidden');
+        if (onConfirm) onConfirm();
+      };
+
+      document.getElementById('confirmModal').classList.remove('hidden');
+    }
+
+    // -------------------------------------------------------------
+    // CAMBIO DE VISTAS INTERNAS
+    // -------------------------------------------------------------
+    function switchView(viewName) {
+      currentView = viewName;
+
+      // Ocultar todas
+      document.getElementById('view-standings').classList.add('hidden');
+      document.getElementById('view-matches').classList.add('hidden');
+      document.getElementById('view-teams').classList.add('hidden');
+
+      // Restablecer botones
+      document.querySelectorAll('.view-tab-btn').forEach(btn => {
+        btn.className = 'view-tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:bg-slate-800';
+      });
+
+      // Activar elegida
+      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`viewBtn-${viewName}`);
+      activeBtn.className = 'view-tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition bg-gradient-to-r from-twincon-orange to-amber-500 text-white shadow-md';
+    }
+  </script>
+</body>
+</html>
